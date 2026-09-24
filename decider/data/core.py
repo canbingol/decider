@@ -134,6 +134,28 @@ def _massive_sc():
     f = lambda ds, t, cap: _cls(ds, lambda r: r["text"], lambda r: idx[r["label_text"]], q, [_nice(n) for n in names], t, cap)
     return _both(f, tr, ev, "massive_scenario")
 
+@task("tr_massive_intent")
+def _massive():
+    tr, ev = _split_pair("canbingol/amazon_massive_intent_tr", None, "train", "test")
+    names = sorted(set(tr["label_text"]))
+    idx = {n: i for i, n in enumerate(names)}
+    names_n = [_nice(n) for n in names]
+    q = "“Bu sesli asistan ifadesinin amacı nedir?"
+    f = lambda ds, t, cap: _cls(ds, lambda r: r["text"], lambda r: idx[r["label_text"]], q, names_n, t, cap)
+    return _both(f, tr, ev, "tr_massive_intent")
+
+
+@task("tr_massive_scenario", heldout=True)
+def _massive_sc():
+    tr, ev = _split_pair("canbingol/amazon_massive_intent_tr", None, "train", "test")
+    names = sorted(set(tr["label_text"]))
+    idx = {n: i for i, n in enumerate(names)}
+    q = "Bu sesli asistan ifadesi hangi senaryoya (alana/kategoriye) ait?"
+    f = lambda ds, t, cap: _cls(ds, lambda r: r["text"], lambda r: idx[r["label_text"]], q, [_nice(n) for n in names], t, cap)
+    return _both(f, tr, ev, "tr_massive_scenario")
+
+
+
 
 @task("bitext_support")
 def _bitext():
@@ -179,6 +201,12 @@ def _ag():
     f = lambda ds, t, cap: _cls(ds, lambda r: r["text"], lambda r: r["label"], "What is the topic of this news article?", names, t, cap)
     return _both(f, tr, ev, "ag_news")
 
+@task("tr_news")
+def _ag():
+    tr, ev = _split_pair("anilguven/turkish_news_dataset", None, "train", "test")
+    names = _names(tr)
+    f = lambda ds, t, cap: _cls(ds, lambda r: r["HABERLER"], lambda r: r["ATIKET"], "What is the topic of this news article?", names, t, cap)
+    return _both(f, tr, ev, "tr_news")
 
 @task("dbpedia")
 def _dbp():
@@ -614,6 +642,11 @@ def _mmlu():
     f = lambda ds, t, cap: _mcq(ds, lambda r: r["question"][:2000], lambda r: r["choices"], lambda r: int(r["answer"]), "Which option is correct?", t, cap)
     return _both(f, tr, ev, "mmlu")
 
+@task("tr_mmlu")
+def tr__mmlu():
+    tr = _ld("cais/mmlu", "all", "auxiliary_train"); ev = _ld("cais/mmlu", "all", "test")
+    f = lambda ds, t, cap: _mcq(ds, lambda r: r["soru"][:2000], lambda r: r["seçenekler"], lambda r: int(r["cevap"]), "Hangi seçenek doğru?", t, cap)
+    return _both(f, tr, ev, "tr_mmlu")
 
 @task("medqa")
 def _medqa():
