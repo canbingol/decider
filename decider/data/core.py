@@ -203,7 +203,7 @@ def _ag():
 
 @task("tr_news")
 def _ag():
-    tr, ev = _split_pair("anilguven/turkish_news_dataset", None, "train", "test")
+    tr, ev = _split_pair("anilguven/turkish_news_dataset", None, "train")
     names = _names(tr)
     f = lambda ds, t, cap: _cls(ds, lambda r: r["HABERLER"], lambda r: r["ATIKET"], "What is the topic of this news article?", names, t, cap)
     return _both(f, tr, ev, "tr_news")
@@ -645,7 +645,7 @@ def _mmlu():
 @task("tr_mmlu")
 def tr__mmlu():
     tr = _ld("cais/mmlu", "all", "auxiliary_train"); ev = _ld("cais/mmlu", "all", "test")
-    f = lambda ds, t, cap: _mcq(ds, lambda r: r["soru"][:2000], lambda r: r["seçenekler"], lambda r: int(r["cevap"]), "Hangi seçenek doğru?", t, cap)
+    f = lambda ds, t, cap: _mcq(ds, lambda r: r["soru"][:2000], lambda r: r["secenekler"], lambda r: int(r["cevap"]), "Hangi seçenek doğru?", t, cap)
     return _both(f, tr, ev, "tr_mmlu")
 
 @task("medqa")
