@@ -646,7 +646,7 @@ def _mmlu():
 
 @task("tr_mmlu")
 def tr__mmlu():
-    tr = _ld("alibayram/turkish_mmlu", "train"); ev = _ld("alibayram/turkish_mmlu", "test")
+    tr = _ld("alibayram/turkish_mmlu", None, "train"); ev = _ld("alibayram/turkish_mmlu", "test")
     f = lambda ds, t, cap: _mcq(ds, lambda r: r["soru"][:2000], lambda r: r["secenekler"], lambda r: int(r["cevap"]), "Hangi seçenek doğru?", t, cap)
     return _both(f, tr, ev, "tr_mmlu")
 
