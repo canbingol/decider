@@ -202,11 +202,13 @@ def _ag():
     return _both(f, tr, ev, "ag_news")
 
 @task("tr_news")
-def _ag():
-    tr, ev = _split_pair("anilguven/turkish_news_dataset", None, "train")
-    names = _names(tr)
-    f = lambda ds, t, cap: _cls(ds, lambda r: r["HABERLER"], lambda r: r["ATIKET"], "What is the topic of this news article?", names, t, cap)
-    return _both(f, tr, ev, "tr_news")
+def _trnews():
+    ds = _ld("anilguven/turkish_news_dataset", None, "train").shuffle(seed=SEED)
+    names = sorted(set(ds["ETIKET"])); idx = {n: i for i, n in enumerate(names)}
+    q = "Bu haber makalesinin konusu nedir?"
+    f = lambda d, t, cap: _cls(d, lambda r: r["HABERLER"], lambda r: idx[r["ETIKET"]], q, [_nice(n) for n in names], t, cap)
+    n = len(ds); ev = ds.select(range(0, 1000)); tr = ds.select(range(1000, n))
+    return f(tr, "tr_news", TRAIN_CAP), f(ev, "tr_news", EVAL_CAP)
 
 @task("dbpedia")
 def _dbp():
@@ -644,7 +646,7 @@ def _mmlu():
 
 @task("tr_mmlu")
 def tr__mmlu():
-    tr = _ld("cais/mmlu", "all", "auxiliary_train"); ev = _ld("cais/mmlu", "all", "test")
+    tr = _ld("alibayram/turkish_mmlu", "train"); ev = _ld("alibayram/turkish_mmlu", "test")
     f = lambda ds, t, cap: _mcq(ds, lambda r: r["soru"][:2000], lambda r: r["secenekler"], lambda r: int(r["cevap"]), "Hangi seçenek doğru?", t, cap)
     return _both(f, tr, ev, "tr_mmlu")
 
